@@ -1,0 +1,180 @@
+<h3 mat-dialog-title>Add New Bill</h3>
+<form autocomplete="off"
+    [formGroup]="expenseForm"
+    (ngSubmit)="onSave()">
+    <div mat-dialog-content
+        class="container-fluid">
+        <div class="row mb-1">
+            <!-- Shop Name -->
+            <div class="col-4">
+                <mat-form-field class="w-100">
+                    <mat-label>Shop name:</mat-label>
+                    <input type="text"
+                        matInput
+                        name="shopName"
+                        formControlName="shopName"
+                        placeholder="Shop Name">
+                    <mat-error>
+                        <div *ngIf="expenseForm.get('shopName')?.errors?.required">
+                            Shop name is mandatory.
+                        </div>
+                        <div *ngIf="expenseForm.get('shopName')?.errors?.minlength
+                                    && !expenseForm.get('shopName')?.errors?.onlywhitespace">
+                            Shop name must be atleast {{ expenseForm.get('shopName')?.errors?.minlength.requiredLength
+                            }} characters.
+                        </div>
+                        <div *ngIf="expenseForm.get('shopName')?.errors?.onlywhitespace">
+                            Looks like you entered only spaces.
+                        </div>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <!-- Date of Purchase -->
+            <div class="col-4">
+                <mat-form-field class="w-100">
+                    <mat-label>Choose purchase date</mat-label>
+                    <input matInput
+                        name="purchaseDate"
+                        [matDatepicker]="picker"
+                        formControlName="purchaseDate"
+                        type="text">
+                    <mat-datepicker-toggle matSuffix
+                        [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error>Purchased date is required</mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Bill Number -->
+            <div class="col-2">
+                <mat-form-field class="w-100">
+                    <mat-label>Bill number:</mat-label>
+                    <input matInput
+                        type="text"
+                        name="billNumber"
+                        formControlName="billNumber"
+                        placeholder="Bill Number">
+                </mat-form-field>
+            </div>
+            <div class="col-2">
+                <button mat-raised-button
+                    type="button"
+                    (click)="addItem()">Add Item</button>
+            </div>
+        </div>
+        <!-- Start of Form Array -->
+        <ng-container formArrayName="particulars">
+            <ng-container *ngFor="let p of particulars.controls; let i = index"
+                [formGroupName]="i">
+                <div class="row">
+                    <div class="col-5">
+                        <mat-form-field class="w-100">
+                            <mat-label>Particulars</mat-label>
+                            <input matInput
+                                type="text"
+                                name="particular"
+                                formControlName="particular"
+                                placeholder="Item Purchased">
+                            <mat-error>
+                                <div *ngIf="p.get('particular')?.errors?.required">
+                                    Item purchased is mandatory.
+                                </div>
+                                <div *ngIf="p.get('particular')?.errors?.minlength
+                                        && !p.get('particular')?.errors?.onlywhitespace">
+                                    Particular must be atleast {{
+                                    p.get('particular')?.errors?.minlength.requiredLength
+                                    }} characters.
+                                </div>
+                                <div *ngIf="p.get('particular')?.errors?.onlywhitespace">
+                                    Looks like you entered only spaces.
+                                </div>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-1">
+                        <mat-form-field class="w-100">
+                            <mat-label>QTY</mat-label>
+                            <input matInput
+                                type="text"
+                                name="quantity"
+                                formControlName="quantity"
+                                decimalNumber
+                                decimalPlaces="3"
+                                placeholder="00.000"
+                                (change)="onControlChange($event, i)">
+                            <mat-error>
+                                <div *ngIf="p.get('quantity')?.errors?.required">
+                                    Quantity is required
+                                </div>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-2">
+                        <mat-form-field class="w-100">
+                            <mat-label>Unit</mat-label>
+                            <mat-select formControlName="unit"
+                                placeholder="">
+                                <mat-option *ngFor="let u of units"
+                                    [value]="u.value">
+                                    {{ u.name }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error>Units is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-1">
+                        <mat-form-field class="w-100">
+                            <mat-label>Rate / Unit</mat-label>
+                            <input matInput
+                                type="text"
+                                name="ratePerUnit"
+                                formControlName="ratePerUnit"
+                                decimalNumber
+                                decimalPlaces="2"
+                                placeholder=""
+                                (change)="onControlChange($event, i)">
+                            <mat-error>Rate per unit is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-1">
+                        <mat-form-field class="w-100">
+                            <mat-label>Amount</mat-label>
+                            <input matInput
+                                type="text"
+                                name="amount"
+                                formControlName="amount"
+                                placeholder=""
+                                readonly>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-2 ">
+                        <button type="button"
+                            mat-icon-button
+                            (click)="onDeleteItem(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+        </ng-container>
+        <!-- End of Form Array -->
+
+        <div class="row">
+            <div class="col-6">
+                <mat-checkbox formControlName="billSettled">Is Bill Paid</mat-checkbox>
+            </div>
+        </div>
+    </div>
+
+    <div mat-dialog-actions
+        class="d-flex justify-content-end">
+        <button mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="this.expenseForm.invalid">Save</button>
+        <button mat-raised-button
+            mat-dialog-close
+            type="button">Close</button>
+    </div>
+</form>
